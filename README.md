@@ -6,7 +6,7 @@ you can see how it works [here](https://university-travel.web.app/)
 
 full text of task you can find below ↓↓↓
 
-``
+```
 
 Тестовое задание
 на должность «Frontend-разработчик»
@@ -29,4 +29,4 @@ full text of task you can find below ↓↓↓
 Желательно использовать чистый (ванильный) js, разрешается использование библиотеки «Underscore»
 Выполнение раньше поставленного срока будет являться плюсом.
 
-``
+```
