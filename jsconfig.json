@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es3",
+        "module": "commonJS"
+    },
+    "include": [
+        "src/**/*.js",
+    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "baseUrl": ".",
+    "paths": {
+        "~/*": [
+            "./src/*"
+        ],
+        "@/*": [
+            "./src/*"
+        ]
+    },
+}

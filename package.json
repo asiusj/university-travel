@@ -1,0 +1,24 @@
+{
+    "name": "university-travel",
+    "version": "1.0.0",
+    "author": {
+        "name": "asiusj"
+    },
+    "scripts": {
+        "build": "webpack",
+        "start": "webpack serve --mode development --open"
+    },
+    "devDependencies": {
+        "babel-loader": "8.2.2",
+        "@babel/core": "7.12.16",
+        "copy-webpack-plugin": "7.0.0",
+        "express": "4.17.1",
+        "html-webpack-plugin": "5.1.0",
+        "webpack": "5.22.0",
+        "webpack-bundle-analyzer": "4.4.0",
+        "webpack-cli": "4.5.0",
+        "webpack-dev-server": "3.11.2"
+    },
+    "browserslist": "> 0.25%, not dead",
+    "type": "commonjs"
+}
