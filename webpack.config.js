@@ -9,7 +9,7 @@ const HTMLWebpackPlugin = require("html-webpack-plugin");
 module.exports = {
     context: srcPath,
     mode: "production",
-    entry: { app: path.join(srcPath, "app.js") },
+    entry: { app: ["@babel/polyfill", path.join(srcPath, "app.js")] },
     output: {
         filename: "[name].js",
         path: distPath,
@@ -51,6 +51,18 @@ module.exports = {
             {
                 test: /\.js$/,
                 loader: "babel-loader",
+                options: {
+                    presets: [
+                        [
+                            "@babel/preset-env",
+                            {
+                                targets: {
+                                    browsers: ["last 1 version", "ie >= 11"],
+                                },
+                            },
+                        ],
+                    ],
+                },
                 exclude: /node_modules/,
             },
         ],
