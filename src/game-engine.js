@@ -1,13 +1,14 @@
 function Game(gameContainerId, data) {
+    const X_POS = 444;
+    const Y_POS = 500;
     this.activeScene = document.getElementById(gameContainerId);
-    this.data = data;
-    this.users = data.rating.length ? data.rating : [];
-    this.friendsList = data.friends.length
-        ? new FriendList(data.friends)
-        : new FriendList();
+    this.data = data || {};
+    this.users = data.rating || [];
+    this.friendsList = new FriendList(data.friends);
+
     this.build = function () {
         if (this.activeScene instanceof HTMLElement) {
-            this.player = new Player({ x: 444, y: 500 });
+            this.player = new Player({ x: X_POS, y: Y_POS });
             this.player.addToScene(this.activeScene);
             this.navigation = new Navigation().addClass("navigation");
             this.navigation.addToScene(this.activeScene);
@@ -155,7 +156,9 @@ function GameController(type, callback) {
 
     return this;
 }
-
+/**
+ * Navigation - navigation object
+ */
 function Navigation() {
     Object.setPrototypeOf(this, new GameObject());
 
@@ -294,7 +297,7 @@ function Slider() {
 }
 
 function FriendList(friends) {
-    this.friends = friends || {};
+    this.friends = friends || [];
     this.noImage = "/images/no-photo-friend.png";
     this.addFriend = function (user) {
         this.friends[user.id] = user;
