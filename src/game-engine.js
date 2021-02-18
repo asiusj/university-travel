@@ -1,87 +1,87 @@
 function Game(gameContainerId, data) {
-    const X_POS = 444;
-    const Y_POS = 500;
     this.activeScene = document.getElementById(gameContainerId);
+    this.steps = new CheckPoits();
     this.data = data || {};
     this.users = data.rating || [];
     this.friendsList = new FriendList(data.friends);
 
     this.build = function () {
         if (this.activeScene instanceof HTMLElement) {
-            this.player = new Player({ x: X_POS, y: Y_POS });
-            this.player.addToScene(this.activeScene);
-            this.navigation = new Navigation().addClass("navigation");
-            this.navigation.addToScene(this.activeScene);
-            this.friends = new Navigation().addClass("friends nav-item");
-            this.navigation.addItem(this.friends);
-            this.modal = new Modal();
-            this.modal.addToScene(this.activeScene);
+            this.character = new Character(this.steps);
+            this.character.addTo(this.activeScene);
+            this.friends = new Container();
+            this.navigation = new Container();
+            this.navigation.addClass("navigation").addTo(this.activeScene);
+            this.navigation.addItem(this.friends.addClass("friends nav-item"));
             this.navigation.addItem(
-                new NavItem(
-                    "click",
-                    console.log.bind(null, "Clicked: chat-button")
-                ).addClass("chat-button nav-item")
+                new GameObject().addClass("chat-button nav-item")
             );
             this.navigation.addItem(
-                new NavItem(
-                    "click",
-                    this.player.goToNextStep.bind(this.player)
-                ).addClass("university-button nav-item")
-            );
-            this.navigation.addItem(
-                new NavItem(
-                    "click",
-                    console.log.bind(null, "Clicked: email-button")
-                ).addClass("email-button nav-item")
-            );
-            this.navigation.addItem(
-                new NavItem(
-                    "click",
-                    this.modal.showMessage.bind(
-                        this.modal,
-                        "Рейтинг игроков",
-                        new ScoreTable(this.data).outerHTML()
+                new GameObject()
+                    .addClass("university-button nav-item")
+                    .addHandler(
+                        "click",
+                        this.character.goToNextStep.bind(this.character)
                     )
-                ).addClass("score-button nav-item")
+            );
+            this.navigation.addItem(
+                new GameObject().addClass("email-button nav-item")
+            );
+            this.navigation.addItem(
+                new GameObject().addClass("score-button nav-item").addHandler(
+                    "click",
+                    function () {
+                        if (!this.modal) {
+                            this.modal = new Modal();
+                            this.modal.addTo(this.activeScene);
+                        }
+                        this.modal.showMessage(
+                            "Рейтинг игроков",
+                            new ScoreTable(this.data).outerHTML()
+                        );
+                    },
+                    this
+                )
             );
             this.slider = new Slider().addClass("slider");
             this.friends
                 .addItem(
-                    new NavItem(
-                        "click",
-                        this.slider.slideBack.bind(this.slider)
-                    ).addClass("back-button")
+                    new GameObject()
+                        .addClass("back-button")
+                        .addHandler(
+                            "click",
+                            this.slider.slideBack.bind(this.slider)
+                        )
                 )
                 .addItem(this.slider)
                 .addItem(
-                    new NavItem(
-                        "click",
-                        this.slider.slideForw.bind(this.slider)
-                    ).addClass("forw-button")
+                    new GameObject()
+                        .addClass("forw-button")
+                        .addHandler(
+                            "click",
+                            this.slider.slideForw.bind(this.slider)
+                        )
                 );
             this.slider.addItem(
-                new NavItem(
-                    "click",
-                    console.log.bind(null, "Clicked: add-friend-button")
-                )
+                new GameObject()
                     .addClass("slider-item friend add-friend-button")
                     .html(
                         `<img title="Add new friend" src="${this.friendsList.noImage}">`
                     )
             );
             const myFriends = this.friendsList.getFriends();
-            if (myFriends.length) {
-                myFriends.forEach((friend) => {
-                    const img = friend.img || this.friendsList.noImage;
-                    let className = "slider-item friend";
-                    className += friend.img ? "" : " no-image";
-                    this.slider.addItem(
-                        new GameObject()
-                            .addClass(className)
-                            .html(`<img  title="${friend.name}" src="${img}">`)
-                    );
-                });
-            }
+
+            myFriends.forEach((friend) => {
+                const img = friend.img || this.friendsList.noImage;
+                const className = `slider-item friend ${
+                    friend.img ? "" : "no-image"
+                }`;
+                this.slider.addItem(
+                    new GameObject()
+                        .addClass(className)
+                        .html(`<img  title="${friend.name}" src="${img}">`)
+                );
+            });
         }
 
         return this;
@@ -90,24 +90,30 @@ function Game(gameContainerId, data) {
     return this;
 }
 
-function Player(pos = { x: 0, y: 0 }) {
+function Character(steps) {
     Object.setPrototypeOf(this, new GameObject());
-    this.steps = new CheckPoits();
-    this.obj.id = "player";
-    this.startPosition = pos;
+
+    this.obj.id = "character";
     this.isMoving = false;
+    this.steps = steps;
 
     this.move = function (pos) {
-        if (!pos || this.movenmentState()) return;
+        if (!pos || this.movenmentState()) {
+            return;
+        }
         this.obj.style.left = pos.x - this.obj.offsetWidth / 2 + "px";
         this.obj.style.top = pos.y - this.obj.offsetHeight + 6 + "px";
         return this;
     };
 
     this.goToNextStep = function () {
-        if (this.isMoving) return;
+        if (this.isMoving) {
+            return;
+        }
         const next = this.steps.pos.next();
-        if (next.done) return;
+        if (next.done) {
+            return;
+        }
         this.move(next.value);
     };
 
@@ -116,22 +122,20 @@ function Player(pos = { x: 0, y: 0 }) {
         return this;
     };
 
-    this.sharpMovenments = function () {
-        this.obj.style.transition = "initial";
-        return this;
-    };
-
-    this.addToScene = ((f) => {
+    this.addTo = ((f) => {
         return function (sceneObj) {
             f.call(this, sceneObj);
-            this.move(this.startPosition);
+            this.move(this.steps.pos.next().value);
             this.smoothMovenments();
         };
-    })(this.addToScene);
+    })(this.addTo);
 
     this.movenmentState = function () {
-        if (this.isMoving) return true;
-        this.isMoving = setTimeout(() => {
+        if (this.isMoving) {
+            return true;
+        }
+        this.isMoving = true;
+        setTimeout(() => {
             this.isMoving = false;
         }, 1000);
         return false;
@@ -140,41 +144,27 @@ function Player(pos = { x: 0, y: 0 }) {
     return this;
 }
 
-function GameController(type, callback) {
-    Object.setPrototypeOf(this, new GameObject());
-
-    this.addHandler = function (type, callback) {
-        this.obj.addEventListener(type, callback);
-        return this;
-    };
-
-    if (!type || !callback) {
-        return this;
-    }
-
-    this.addHandler(type, callback);
-
-    return this;
-}
 /**
- * Navigation - navigation object
+ * Container - navigation object
  */
-function Navigation() {
+function Container() {
     Object.setPrototypeOf(this, new GameObject());
 
     this.addItem = function (newItem) {
-        newItem.addToScene(this.obj);
+        newItem.addTo(this.obj);
         return this;
     };
-    this.removeItem = function () {};
 
     return this;
 }
 
-function GameObject() {
-    this.obj = document.createElement("div");
+function GameObject(tag = "div") {
+    this.obj = document.createElement(tag);
+    if (!this.obj) {
+        throw new Error("Cannot create GameObject. Bad tag: ", tag);
+    }
 
-    this.addToScene = function (sceneObj) {
+    this.addTo = function (sceneObj) {
         sceneObj.appendChild(this.obj);
     };
 
@@ -183,33 +173,34 @@ function GameObject() {
         return this;
     };
     this.addClass = function (className) {
-        if (/(\s|,)/.test(className)) {
-            this.obj.classList.add(...className.match(/[^\,\s]+/g));
-        } else {
-            this.obj.classList.add(className);
-        }
+        this.obj.classList.add(...className.match(/[^,\s]+/g));
         return this;
     };
 
     this.removeClass = function (className) {
-        if (/(\s|,)/.test(className)) {
-            this.obj.classList.remove(...className.match(/[^\,\s]+/g));
-        } else {
-            this.obj.classList.remove(className);
-        }
+        this.obj.classList.remove(...className.match(/[^,\s]+/g));
     };
 
-    return this;
-}
+    this.addHandler = function (type, callback, context) {
+        if (!(callback && typeof callback === "function") || !type) {
+            throw new Error(`
+    Cannot add handler. Wrong params
+    Type:  ${type}
+    Callback: ${callback}`);
+        }
+        this.obj.addEventListener(type, () => {
+            callback.call(context);
+        });
+        return this;
+    };
 
-function NavItem(typeEvent, callback) {
-    Object.setPrototypeOf(this, new GameController(typeEvent, callback));
     return this;
 }
 
 function CheckPoits() {
     this.checkpointsPositions = function* () {
         yield* [
+            { x: 444, y: 500 },
             { x: 350, y: 475 },
             { x: 275, y: 518 },
             { x: 190, y: 535 },
@@ -269,28 +260,20 @@ function CheckPoits() {
 }
 
 function Slider() {
+    const SCROLL_STEP = 64;
     Object.setPrototypeOf(this, new GameObject());
-    this.position = 0;
-    this.range = 0;
-    this.tape = new Navigation().addClass("slider-tape");
-    this.tape.addToScene(this.obj);
+    this.tape = new Container().addClass("slider-tape");
+    this.tape.addTo(this.obj);
 
     this.addItem = function (newItem) {
         this.tape.addItem(newItem);
-        this.range = this.tape.obj.offsetWidth - this.obj.offsetWidth;
     };
 
     this.slideForw = function () {
-        if (this.range > 0) {
-            this.obj.scrollLeft += 64;
-            this.position++;
-        }
+        this.obj.scrollLeft += SCROLL_STEP;
     };
     this.slideBack = function () {
-        if (this.range > 0) {
-            this.position--;
-            this.obj.scrollLeft -= 64;
-        }
+        this.obj.scrollLeft -= SCROLL_STEP;
     };
 
     return this;
@@ -343,7 +326,7 @@ function Modal() {
     this.showMessage = function (header, content) {
         this.header.html(header);
         this.message.html(content);
-        this.addClass("active");
+        setTimeout(() => this.addClass("active"));
     };
 
     this.close = function () {
@@ -352,19 +335,18 @@ function Modal() {
         this.message.html("");
     };
 
-    this.overlay = new GameController("click", this.close.bind(this)).addClass(
-        "modal-overlay"
-    );
-    this.closeButton = new GameController(
-        "click",
-        this.close.bind(this)
-    ).addClass("modal-close-button");
+    this.overlay = new GameObject()
+        .addClass("modal-overlay")
+        .addHandler("click", this.close.bind(this));
+    this.closeButton = new GameObject()
+        .addClass("modal-close-button")
+        .addHandler("click", this.close.bind(this));
 
-    this.body.addToScene(this.obj);
-    this.header.addToScene(this.body.obj);
-    this.message.addToScene(this.body.obj);
-    this.overlay.addToScene(this.obj);
-    this.closeButton.addToScene(this.body.obj);
+    this.body.addTo(this.obj);
+    this.header.addTo(this.body.obj);
+    this.message.addTo(this.body.obj);
+    this.overlay.addTo(this.obj);
+    this.closeButton.addTo(this.body.obj);
 }
 
 function ScoreTable(data) {
@@ -410,11 +392,9 @@ function ScoreTable(data) {
 
 module.exports = {
     Game,
-    Player,
+    Character,
     GameObject,
-    GameController,
-    Navigation,
-    NavItem,
+    Container,
     CheckPoits,
     Slider,
     FriendList,

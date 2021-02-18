@@ -51,7 +51,7 @@ h1 {
     overflow: hidden;
 }
 
-#player {
+#character {
     background-image: url("/images/player.png");
     background-repeat: no-repeat;
     width: 20px;
@@ -63,15 +63,15 @@ h1 {
     animation-timing-function: linear;
 }
 
-#player:hover {
+#character:hover {
     animation-iteration-count: infinite;
-    animation-name: player-animation;
+    animation-name: character-animation;
     animation-direction: alternate;
     animation-timing-function: linear;
     filter: brightness(1.2);
 }
 
-@keyframes player-animation {
+@keyframes character-animation {
     from {
         background-position-y: 4px;
     }
