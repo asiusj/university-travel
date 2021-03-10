@@ -104,7 +104,7 @@ h1 {
 .friends {
     display: flex;
     height: 64px;
-    width: 536px;
+    width: 548px;
     align-items: center;
     background-image: url("/images/friends-bg.png");
     background-repeat: no-repeat;
@@ -163,6 +163,8 @@ h1 {
 }
 .slider-tape {
     display: inline-flex;
+    height: 64px;
+    align-items: center;
 }
 
 .slider-item {
@@ -182,6 +184,8 @@ h1 {
     width: 52px;
     height: 52px;
     margin: 0 4px;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 .add-friend-button img,
 .friend.no-image img {

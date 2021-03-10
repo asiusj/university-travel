@@ -13,13 +13,14 @@ module.exports = {
     output: {
         filename: "[name].js",
         path: distPath,
-        publicPath: "/",
+        publicPath: "",
     },
     devServer: {
         port: 4200,
         hot: true,
         contentBase: distPath,
     },
+    devtool: "source-map",
     resolve: {
         extensions: [".js"],
         alias: {
@@ -30,7 +31,7 @@ module.exports = {
         new HTMLWebpackPlugin({
             template: path.join(srcPath, "public", "index.html"),
             minify: {
-                collapseWhitespace: true,
+                collapseWhitespace: false,
             },
         }),
         new CopyWebpackPlugin({

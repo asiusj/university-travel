@@ -260,7 +260,7 @@ function CheckPoits() {
 }
 
 function Slider() {
-    const SCROLL_STEP = 64;
+    const SCROLL_STEP = 60;
     Object.setPrototypeOf(this, new GameObject());
     this.tape = new Container().addClass("slider-tape");
     this.tape.addTo(this.obj);
@@ -281,7 +281,7 @@ function Slider() {
 
 function FriendList(friends) {
     this.friends = friends || [];
-    this.noImage = "/images/no-photo-friend.png";
+    this.noImage = "images/no-photo-friend.png";
     this.addFriend = function (user) {
         this.friends[user.id] = user;
         return this;
